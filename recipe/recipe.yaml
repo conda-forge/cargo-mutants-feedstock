@@ -27,6 +27,9 @@ build:
           - $CARGO_MUTANTS mutants --completions bash > $PREFIX/share/bash-completion/completions/cargo-mutants
           - $CARGO_MUTANTS mutants --completions fish > $PREFIX/share/fish/vendor_completions.d/cargo-mutants.fish
         else:
+          # fs2 0.4.0 and jobserver 0.1.0 depend on winapi 0.2, which doesn't support aarch64
+          - if: arm64
+            then: cargo update -p fs2 -p jobserver
           - cargo auditable install --locked --no-track --bins --root %LIBRARY_PREFIX% --path .
       - cargo-bundle-licenses --format yaml --output ./THIRDPARTY.yml
 
