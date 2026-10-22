@@ -20,9 +20,12 @@ build:
         then:
           - cargo auditable install --locked --no-track --bins --root ${{ PREFIX }} --path .
           - mkdir -p $PREFIX/share/zsh/site-functions $PREFIX/share/bash-completion/completions $PREFIX/share/fish/vendor_completions.d
-          - $PREFIX/bin/cargo-mutants mutants --completions zsh > $PREFIX/share/zsh/site-functions/_cargo-mutants
-          - $PREFIX/bin/cargo-mutants mutants --completions bash > $PREFIX/share/bash-completion/completions/cargo-mutants
-          - $PREFIX/bin/cargo-mutants mutants --completions fish > $PREFIX/share/fish/vendor_completions.d/cargo-mutants.fish
+          - if: build_platform == target_platform
+            then: export CARGO_MUTANTS=$PREFIX/bin/cargo-mutants
+            else: export CARGO_MUTANTS=$BUILD_PREFIX/bin/cargo-mutants
+          - $CARGO_MUTANTS mutants --completions zsh > $PREFIX/share/zsh/site-functions/_cargo-mutants
+          - $CARGO_MUTANTS mutants --completions bash > $PREFIX/share/bash-completion/completions/cargo-mutants
+          - $CARGO_MUTANTS mutants --completions fish > $PREFIX/share/fish/vendor_completions.d/cargo-mutants.fish
         else:
           - cargo auditable install --locked --no-track --bins --root %LIBRARY_PREFIX% --path .
       - cargo-bundle-licenses --format yaml --output ./THIRDPARTY.yml
@@ -34,6 +37,9 @@ requirements:
     - ${{ compiler('rust') }}
     - cargo-bundle-licenses
     - cargo-auditable
+    # used to generate shell completions when cross-compiling
+    - if: build_platform != target_platform
+      then: cargo-mutants
 
 tests:
   - script:
