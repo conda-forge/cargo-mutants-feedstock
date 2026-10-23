@@ -8,6 +8,9 @@ package:
 source:
   url: https://github.com/sourcefrog/cargo-mutants/archive/refs/tags/v${{ version }}.tar.gz
   sha256: e57d8c31a8edee7d9265949aef896768729c824626897938e98a5d162a82bda0
+  patches:
+    # fs2 0.4.0 and jobserver 0.1.0 depend on winapi 0.2, which doesn't support aarch64
+    - patches/0001-Update-fs2-and-jobserver-to-drop-winapi-0.2.patch
 
 build:
   number: 0
